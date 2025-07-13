@@ -1,5 +1,4 @@
-﻿' MainForm.vb
-Imports System.Drawing
+﻿Imports System.Drawing
 Imports System.Windows.Forms
 
 Public Class MainForm
@@ -289,35 +288,78 @@ Public Class MainForm
         AddHandler btnAdventurerHome.Click, AddressOf BtnAdventurerHome_Click
     End Sub
 
+    ' Navigation function for Home button - UPDATED
     Private Sub BtnHome_Click(sender As Object, e As EventArgs)
-        Dim homeForm As New HomeForm()
-        homeForm.Show()
+        NavigateToHome()
+    End Sub
+
+    Private Sub NavigateToHome()
+        Try
+            ' Create and show the TravelHomepageForm (or whatever your home form is called)
+            Dim homeForm As New TravelHomepageForm()
+
+            ' Hide current form
+            Me.Hide()
+
+            ' Show the home form as a modal dialog
+            homeForm.ShowDialog()
+
+            ' Show current form again when home form is closed
+            Me.Show()
+
+        Catch ex As Exception
+            MessageBox.Show($"Error opening Home: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Me.Show() ' Ensure main form is visible even if error occurs
+        End Try
     End Sub
 
     Private Sub BtnPackages_Click(sender As Object, e As EventArgs)
-        Dim packagesForm As New LakbayPHPackagesForm()
-        packagesForm.Show()
-        Me.Hide() ' Optional: Hide current form
+        Try
+            Dim packagesForm As New PackagesWithoutUserForm()
+            Me.Hide()
+            packagesForm.ShowDialog()
+            Me.Show()
+        Catch ex As Exception
+            MessageBox.Show($"Error opening Packages: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Me.Show()
+        End Try
     End Sub
 
     ' Fixed the adventurer button click function
     Private Sub BtnAdventurerHome_Click(sender As Object, e As EventArgs)
         Try
             Dim adventurerForm As New AdventurerHomeForm()
+            Me.Hide()
             adventurerForm.ShowDialog()
+            Me.Show()
         Catch ex As Exception
             MessageBox.Show("Error opening Adventurer Home: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Me.Show()
         End Try
     End Sub
 
     Private Sub BtnAboutUs_Click(sender As Object, e As EventArgs)
-        Dim aboutUsForm As New AboutUsForm()
-        aboutUsForm.Show()
+        Try
+            Dim aboutUsForm As New AboutUsForm()
+            Me.Hide()
+            aboutUsForm.ShowDialog()
+            Me.Show()
+        Catch ex As Exception
+            MessageBox.Show($"Error opening About Us: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Me.Show()
+        End Try
     End Sub
 
     Private Sub BtnSignUp_Click(sender As Object, e As EventArgs)
-        Dim signUpForm As New SignUpForm()
-        signUpForm.Show()
+        Try
+            Dim signUpForm As New SignUpForm()
+            Me.Hide()
+            signUpForm.ShowDialog()
+            Me.Show()
+        Catch ex As Exception
+            MessageBox.Show($"Error opening Sign Up: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Me.Show()
+        End Try
     End Sub
 
     Private Sub BtnLogIn_Click(sender As Object, e As EventArgs)

@@ -180,7 +180,7 @@ Public Class AdventurerHomeForm
 
     Private Sub StartAdventure_Click(sender As Object, e As EventArgs)
         ' Open the LakbayPH Packages Form
-        Dim packagesForm As New LakbayPHPackagesForm()
+        Dim packagesForm As New MainForm()
         Me.Hide() ' Hide the current form
         packagesForm.ShowDialog() ' Show the packages form as a dialog
         Me.Show() ' Show the main form again when packages form is closed
@@ -353,7 +353,7 @@ Public Class AddAdventureForm
 End Class
 
 ' Main application entry point
-Module Program
+Module HomeForm
     <STAThread>
     Sub Main()
         Application.EnableVisualStyles()

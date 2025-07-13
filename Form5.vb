@@ -30,13 +30,17 @@ Public Class SignUpForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1007, 700)
-        Me.Name = "SignUpForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "LakbayPH - Sign Up"
-        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
+        Me.WindowState = FormWindowState.Maximized
+        AddHandler Me.Resize, AddressOf Form_Resized
         Me.ResumeLayout(False)
+    End Sub
 
+    Private Sub Form_Resized(sender As Object, e As EventArgs)
+        Me.Controls.Clear()
+        CreateControls()
+        SetupEventHandlers() ' Added this line - this was missing!
     End Sub
 
     Private Sub SetupForm()
@@ -47,13 +51,21 @@ Public Class SignUpForm
     End Sub
 
     Private Sub CreateControls()
+        ' Calculate center position based on form width
+        Dim formWidth As Integer = Me.ClientSize.Width
+        Dim formHeight As Integer = Me.ClientSize.Height
+        Dim formContentWidth As Integer = 450
+        Dim formContentHeight As Integer = 700 ' approximate height of all content
+
+        Dim centerX As Integer = (formWidth - formContentWidth) \ 2
+        Dim topOffset As Integer = (formHeight - formContentHeight) \ 2
 
         ' Title
         Dim lblTitle As New Label()
         lblTitle.Text = "Create Your Account"
         lblTitle.Font = New Font("Arial", 22, FontStyle.Bold)
         lblTitle.ForeColor = Color.White
-        lblTitle.Location = New Point(50, 30)
+        lblTitle.Location = New Point(centerX, topOffset + 30)
         lblTitle.Size = New Size(450, 40)
         lblTitle.TextAlign = ContentAlignment.MiddleCenter
         Me.Controls.Add(lblTitle)
@@ -62,7 +74,7 @@ Public Class SignUpForm
         lblSubtitle.Text = "Join LakbayPH and start your adventure!"
         lblSubtitle.Font = New Font("Arial", 12, FontStyle.Regular)
         lblSubtitle.ForeColor = Color.LightGray
-        lblSubtitle.Location = New Point(50, 75)
+        lblSubtitle.Location = New Point(centerX, topOffset + 75)
         lblSubtitle.Size = New Size(450, 25)
         lblSubtitle.TextAlign = ContentAlignment.MiddleCenter
         Me.Controls.Add(lblSubtitle)
@@ -72,13 +84,13 @@ Public Class SignUpForm
         lblFirstName.Text = "First Name *"
         lblFirstName.Font = New Font("Arial", 11, FontStyle.Bold)
         lblFirstName.ForeColor = Color.White
-        lblFirstName.Location = New Point(50, 120)
+        lblFirstName.Location = New Point(centerX, topOffset + 120)
         lblFirstName.Size = New Size(120, 25)
         Me.Controls.Add(lblFirstName)
 
         txtFirstName = New TextBox()
         txtFirstName.Font = New Font("Arial", 12)
-        txtFirstName.Location = New Point(50, 145)
+        txtFirstName.Location = New Point(centerX, topOffset + 145)
         txtFirstName.Size = New Size(450, 30)
         txtFirstName.BackColor = Color.White
         txtFirstName.ForeColor = Color.Black
@@ -89,13 +101,13 @@ Public Class SignUpForm
         lblLastName.Text = "Last Name *"
         lblLastName.Font = New Font("Arial", 11, FontStyle.Bold)
         lblLastName.ForeColor = Color.White
-        lblLastName.Location = New Point(50, 185)
+        lblLastName.Location = New Point(centerX, topOffset + 185)
         lblLastName.Size = New Size(120, 25)
         Me.Controls.Add(lblLastName)
 
         txtLastName = New TextBox()
         txtLastName.Font = New Font("Arial", 12)
-        txtLastName.Location = New Point(50, 210)
+        txtLastName.Location = New Point(centerX, topOffset + 210)
         txtLastName.Size = New Size(450, 30)
         txtLastName.BackColor = Color.White
         txtLastName.ForeColor = Color.Black
@@ -106,13 +118,13 @@ Public Class SignUpForm
         lblEmail.Text = "Email Address *"
         lblEmail.Font = New Font("Arial", 11, FontStyle.Bold)
         lblEmail.ForeColor = Color.White
-        lblEmail.Location = New Point(50, 250)
+        lblEmail.Location = New Point(centerX, topOffset + 250)
         lblEmail.Size = New Size(150, 25)
         Me.Controls.Add(lblEmail)
 
         txtEmail = New TextBox()
         txtEmail.Font = New Font("Arial", 12)
-        txtEmail.Location = New Point(50, 275)
+        txtEmail.Location = New Point(centerX, topOffset + 275)
         txtEmail.Size = New Size(450, 30)
         txtEmail.BackColor = Color.White
         txtEmail.ForeColor = Color.Black
@@ -123,13 +135,13 @@ Public Class SignUpForm
         lblUsername.Text = "Username *"
         lblUsername.Font = New Font("Arial", 11, FontStyle.Bold)
         lblUsername.ForeColor = Color.White
-        lblUsername.Location = New Point(50, 315)
+        lblUsername.Location = New Point(centerX, topOffset + 315)
         lblUsername.Size = New Size(120, 25)
         Me.Controls.Add(lblUsername)
 
         txtUsername = New TextBox()
         txtUsername.Font = New Font("Arial", 12)
-        txtUsername.Location = New Point(50, 340)
+        txtUsername.Location = New Point(centerX, topOffset + 340)
         txtUsername.Size = New Size(450, 30)
         txtUsername.BackColor = Color.White
         txtUsername.ForeColor = Color.Black
@@ -140,13 +152,13 @@ Public Class SignUpForm
         lblGender.Text = "Gender *"
         lblGender.Font = New Font("Arial", 11, FontStyle.Bold)
         lblGender.ForeColor = Color.White
-        lblGender.Location = New Point(50, 380)
+        lblGender.Location = New Point(centerX, topOffset + 380)
         lblGender.Size = New Size(80, 25)
         Me.Controls.Add(lblGender)
 
         cmbGender = New ComboBox()
         cmbGender.Font = New Font("Arial", 12)
-        cmbGender.Location = New Point(50, 405)
+        cmbGender.Location = New Point(centerX, topOffset + 405)
         cmbGender.Size = New Size(450, 30)
         cmbGender.BackColor = Color.White
         cmbGender.ForeColor = Color.Black
@@ -160,13 +172,13 @@ Public Class SignUpForm
         lblPassword.Text = "Password *"
         lblPassword.Font = New Font("Arial", 11, FontStyle.Bold)
         lblPassword.ForeColor = Color.White
-        lblPassword.Location = New Point(50, 445)
+        lblPassword.Location = New Point(centerX, topOffset + 445)
         lblPassword.Size = New Size(100, 25)
         Me.Controls.Add(lblPassword)
 
         txtPassword = New TextBox()
         txtPassword.Font = New Font("Arial", 12)
-        txtPassword.Location = New Point(50, 470)
+        txtPassword.Location = New Point(centerX, topOffset + 470)
         txtPassword.Size = New Size(450, 30)
         txtPassword.BackColor = Color.White
         txtPassword.ForeColor = Color.Black
@@ -178,13 +190,13 @@ Public Class SignUpForm
         lblConfirmPassword.Text = "Confirm Password *"
         lblConfirmPassword.Font = New Font("Arial", 11, FontStyle.Bold)
         lblConfirmPassword.ForeColor = Color.White
-        lblConfirmPassword.Location = New Point(50, 510)
+        lblConfirmPassword.Location = New Point(centerX, topOffset + 510)
         lblConfirmPassword.Size = New Size(150, 25)
         Me.Controls.Add(lblConfirmPassword)
 
         txtConfirmPassword = New TextBox()
         txtConfirmPassword.Font = New Font("Arial", 12)
-        txtConfirmPassword.Location = New Point(50, 535)
+        txtConfirmPassword.Location = New Point(centerX, topOffset + 535)
         txtConfirmPassword.Size = New Size(450, 30)
         txtConfirmPassword.BackColor = Color.White
         txtConfirmPassword.ForeColor = Color.Black
@@ -196,11 +208,14 @@ Public Class SignUpForm
         lblRequired.Text = "* Required fields"
         lblRequired.Font = New Font("Arial", 10, FontStyle.Italic)
         lblRequired.ForeColor = Color.LightGray
-        lblRequired.Location = New Point(50, 580)
+        lblRequired.Location = New Point(centerX, topOffset + 580)
         lblRequired.Size = New Size(150, 20)
         Me.Controls.Add(lblRequired)
 
-        ' Buttons
+        ' Buttons - centered as a group
+        Dim buttonGroupWidth As Integer = 360 ' Total width of all buttons (120 * 3) + spacing
+        Dim buttonStartX As Integer = centerX + (450 - buttonGroupWidth) / 2
+
         btnSignUp = New Button()
         btnSignUp.Text = "SIGN UP"
         btnSignUp.Font = New Font("Arial", 12, FontStyle.Bold)
@@ -209,7 +224,7 @@ Public Class SignUpForm
         btnSignUp.FlatStyle = FlatStyle.Flat
         btnSignUp.FlatAppearance.BorderColor = Color.FromArgb(30, 150, 80)
         btnSignUp.FlatAppearance.MouseOverBackColor = Color.FromArgb(25, 120, 65)
-        btnSignUp.Location = New Point(50, 620)
+        btnSignUp.Location = New Point(buttonStartX, topOffset + 620)
         btnSignUp.Size = New Size(120, 45)
         btnSignUp.Cursor = Cursors.Hand
         Me.Controls.Add(btnSignUp)
@@ -222,7 +237,7 @@ Public Class SignUpForm
         btnClear.FlatStyle = FlatStyle.Flat
         btnClear.FlatAppearance.BorderColor = Color.FromArgb(200, 100, 50)
         btnClear.FlatAppearance.MouseOverBackColor = Color.FromArgb(170, 80, 30)
-        btnClear.Location = New Point(240, 620)
+        btnClear.Location = New Point(buttonStartX + 120, topOffset + 620)
         btnClear.Size = New Size(120, 45)
         btnClear.Cursor = Cursors.Hand
         Me.Controls.Add(btnClear)
@@ -235,13 +250,23 @@ Public Class SignUpForm
         btnCancel.FlatStyle = FlatStyle.Flat
         btnCancel.FlatAppearance.BorderColor = Color.FromArgb(120, 120, 120)
         btnCancel.FlatAppearance.MouseOverBackColor = Color.FromArgb(100, 100, 100)
-        btnCancel.Location = New Point(380, 620)
+        btnCancel.Location = New Point(buttonStartX + 240, topOffset + 620)
         btnCancel.Size = New Size(120, 45)
         btnCancel.Cursor = Cursors.Hand
         Me.Controls.Add(btnCancel)
     End Sub
 
     Private Sub SetupEventHandlers()
+        ' Remove existing handlers first to prevent duplicates
+        RemoveHandler btnSignUp.Click, AddressOf BtnSignUp_Click
+        RemoveHandler btnCancel.Click, AddressOf BtnCancel_Click
+        RemoveHandler btnClear.Click, AddressOf BtnClear_Click
+        RemoveHandler txtUsername.TextChanged, AddressOf TxtUsername_TextChanged
+        RemoveHandler txtEmail.Leave, AddressOf TxtEmail_Leave
+        RemoveHandler txtPassword.TextChanged, AddressOf TxtPassword_TextChanged
+        RemoveHandler txtConfirmPassword.TextChanged, AddressOf TxtConfirmPassword_TextChanged
+
+        ' Add handlers
         AddHandler btnSignUp.Click, AddressOf BtnSignUp_Click
         AddHandler btnCancel.Click, AddressOf BtnCancel_Click
         AddHandler btnClear.Click, AddressOf BtnClear_Click
@@ -280,14 +305,19 @@ Public Class SignUpForm
 
     Private Sub TxtUsername_TextChanged(sender As Object, e As EventArgs)
         ' Remove spaces and convert to lowercase for username
-        Dim cursorPosition As Integer = txtUsername.SelectionStart
-        txtUsername.Text = txtUsername.Text.Replace(" ", "").ToLower()
-        txtUsername.SelectionStart = cursorPosition
+        If txtUsername IsNot Nothing Then
+            Dim cursorPosition As Integer = txtUsername.SelectionStart
+            Dim newText As String = txtUsername.Text.Replace(" ", "").ToLower()
+            If txtUsername.Text <> newText Then
+                txtUsername.Text = newText
+                txtUsername.SelectionStart = Math.Min(cursorPosition, txtUsername.Text.Length)
+            End If
+        End If
     End Sub
 
     Private Sub TxtEmail_Leave(sender As Object, e As EventArgs)
         ' Basic email validation
-        If Not String.IsNullOrWhiteSpace(txtEmail.Text) Then
+        If txtEmail IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(txtEmail.Text) Then
             If Not IsValidEmail(txtEmail.Text) Then
                 txtEmail.BackColor = Color.LightPink
             Else
@@ -298,31 +328,43 @@ Public Class SignUpForm
 
     Private Sub TxtPassword_TextChanged(sender As Object, e As EventArgs)
         ' Password strength indicator (basic)
-        If txtPassword.Text.Length >= 8 Then
-            txtPassword.BackColor = Color.LightGreen
-        ElseIf txtPassword.Text.Length >= 6 Then
-            txtPassword.BackColor = Color.LightYellow
-        ElseIf txtPassword.Text.Length > 0 Then
-            txtPassword.BackColor = Color.LightPink
-        Else
-            txtPassword.BackColor = Color.White
+        If txtPassword IsNot Nothing Then
+            If txtPassword.Text.Length >= 8 Then
+                txtPassword.BackColor = Color.LightGreen
+            ElseIf txtPassword.Text.Length >= 6 Then
+                txtPassword.BackColor = Color.LightYellow
+            ElseIf txtPassword.Text.Length > 0 Then
+                txtPassword.BackColor = Color.LightPink
+            Else
+                txtPassword.BackColor = Color.White
+            End If
         End If
     End Sub
 
     Private Sub TxtConfirmPassword_TextChanged(sender As Object, e As EventArgs)
         ' Check if passwords match
-        If txtConfirmPassword.Text.Length > 0 Then
-            If txtPassword.Text = txtConfirmPassword.Text Then
-                txtConfirmPassword.BackColor = Color.LightGreen
+        If txtConfirmPassword IsNot Nothing AndAlso txtPassword IsNot Nothing Then
+            If txtConfirmPassword.Text.Length > 0 Then
+                If txtPassword.Text = txtConfirmPassword.Text Then
+                    txtConfirmPassword.BackColor = Color.LightGreen
+                Else
+                    txtConfirmPassword.BackColor = Color.LightPink
+                End If
             Else
-                txtConfirmPassword.BackColor = Color.LightPink
+                txtConfirmPassword.BackColor = Color.White
             End If
-        Else
-            txtConfirmPassword.BackColor = Color.White
         End If
     End Sub
 
     Private Function ValidateInputs() As Boolean
+        ' Check if controls exist first
+        If txtFirstName Is Nothing OrElse txtLastName Is Nothing OrElse
+           txtEmail Is Nothing OrElse txtUsername Is Nothing OrElse
+           cmbGender Is Nothing OrElse txtPassword Is Nothing OrElse
+           txtConfirmPassword Is Nothing Then
+            Return False
+        End If
+
         ' Reset all background colors
         txtFirstName.BackColor = Color.White
         txtLastName.BackColor = Color.White
@@ -415,22 +457,24 @@ Public Class SignUpForm
     End Function
 
     Private Sub ClearAllFields()
-        txtFirstName.Clear()
-        txtLastName.Clear()
-        txtEmail.Clear()
-        txtUsername.Clear()
-        cmbGender.SelectedIndex = 0
-        txtPassword.Clear()
-        txtConfirmPassword.Clear()
+        ' Check if controls exist first
+        If txtFirstName IsNot Nothing Then txtFirstName.Clear()
+        If txtLastName IsNot Nothing Then txtLastName.Clear()
+        If txtEmail IsNot Nothing Then txtEmail.Clear()
+        If txtUsername IsNot Nothing Then txtUsername.Clear()
+        If cmbGender IsNot Nothing Then cmbGender.SelectedIndex = 0
+        If txtPassword IsNot Nothing Then txtPassword.Clear()
+        If txtConfirmPassword IsNot Nothing Then txtConfirmPassword.Clear()
 
         ' Reset background colors
-        txtFirstName.BackColor = Color.White
-        txtLastName.BackColor = Color.White
-        txtEmail.BackColor = Color.White
-        txtUsername.BackColor = Color.White
-        txtPassword.BackColor = Color.White
-        txtConfirmPassword.BackColor = Color.White
+        If txtFirstName IsNot Nothing Then txtFirstName.BackColor = Color.White
+        If txtLastName IsNot Nothing Then txtLastName.BackColor = Color.White
+        If txtEmail IsNot Nothing Then txtEmail.BackColor = Color.White
+        If txtUsername IsNot Nothing Then txtUsername.BackColor = Color.White
+        If txtPassword IsNot Nothing Then txtPassword.BackColor = Color.White
+        If txtConfirmPassword IsNot Nothing Then txtConfirmPassword.BackColor = Color.White
 
-        txtFirstName.Focus()
+        If txtFirstName IsNot Nothing Then txtFirstName.Focus()
     End Sub
+
 End Class
