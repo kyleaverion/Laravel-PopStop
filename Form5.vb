@@ -1,9 +1,15 @@
-﻿' SignUpForm.vb
-Imports System.Drawing
+﻿Imports System.Drawing
 Imports System.Windows.Forms
+Imports MySqlConnector
+Imports System.Security.Cryptography
+Imports System.Text
 
 Public Class SignUpForm
     Inherits Form
+
+    Dim conn As MySqlConnection = New MySqlConnection("Server=localhost;Database=lakbayph_web;Uid=root;Pwd=;")
+    Public sql As String
+    Public dbcomm As MySqlCommand
 
     Private txtFirstName As TextBox
     Private txtLastName As TextBox
@@ -25,22 +31,21 @@ Public Class SignUpForm
 
     Private Sub InitializeComponent()
         Me.SuspendLayout()
-        '
-        'SignUpForm
-        '
+
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.ClientSize = New System.Drawing.Size(282, 253)
+        Me.Name = "SignUpForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "LakbayPH - Sign Up"
-        Me.WindowState = FormWindowState.Maximized
-        AddHandler Me.Resize, AddressOf Form_Resized
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.ResumeLayout(False)
     End Sub
 
-    Private Sub Form_Resized(sender As Object, e As EventArgs)
+    Private Sub Form_Resized(sender As Object, e As EventArgs) Handles MyBase.Resize
         Me.Controls.Clear()
         CreateControls()
-        SetupEventHandlers() ' Added this line - this was missing!
+        SetupEventHandlers()
     End Sub
 
     Private Sub SetupForm()
@@ -55,7 +60,7 @@ Public Class SignUpForm
         Dim formWidth As Integer = Me.ClientSize.Width
         Dim formHeight As Integer = Me.ClientSize.Height
         Dim formContentWidth As Integer = 450
-        Dim formContentHeight As Integer = 700 ' approximate height of all content
+        Dim formContentHeight As Integer = 700
 
         Dim centerX As Integer = (formWidth - formContentWidth) \ 2
         Dim topOffset As Integer = (formHeight - formContentHeight) \ 2
@@ -213,7 +218,7 @@ Public Class SignUpForm
         Me.Controls.Add(lblRequired)
 
         ' Buttons - centered as a group
-        Dim buttonGroupWidth As Integer = 360 ' Total width of all buttons (120 * 3) + spacing
+        Dim buttonGroupWidth As Integer = 360
         Dim buttonStartX As Integer = centerX + (450 - buttonGroupWidth) / 2
 
         btnSignUp = New Button()
@@ -257,37 +262,218 @@ Public Class SignUpForm
     End Sub
 
     Private Sub SetupEventHandlers()
-        ' Remove existing handlers first to prevent duplicates
-        RemoveHandler btnSignUp.Click, AddressOf BtnSignUp_Click
-        RemoveHandler btnCancel.Click, AddressOf BtnCancel_Click
-        RemoveHandler btnClear.Click, AddressOf BtnClear_Click
-        RemoveHandler txtUsername.TextChanged, AddressOf TxtUsername_TextChanged
-        RemoveHandler txtEmail.Leave, AddressOf TxtEmail_Leave
-        RemoveHandler txtPassword.TextChanged, AddressOf TxtPassword_TextChanged
-        RemoveHandler txtConfirmPassword.TextChanged, AddressOf TxtConfirmPassword_TextChanged
+        ' Only add handlers if controls exist
+        If btnSignUp IsNot Nothing Then
+            RemoveHandler btnSignUp.Click, AddressOf BtnSignUp_Click
+            AddHandler btnSignUp.Click, AddressOf BtnSignUp_Click
+        End If
 
-        ' Add handlers
-        AddHandler btnSignUp.Click, AddressOf BtnSignUp_Click
-        AddHandler btnCancel.Click, AddressOf BtnCancel_Click
-        AddHandler btnClear.Click, AddressOf BtnClear_Click
-        AddHandler txtUsername.TextChanged, AddressOf TxtUsername_TextChanged
-        AddHandler txtEmail.Leave, AddressOf TxtEmail_Leave
-        AddHandler txtPassword.TextChanged, AddressOf TxtPassword_TextChanged
-        AddHandler txtConfirmPassword.TextChanged, AddressOf TxtConfirmPassword_TextChanged
+        If btnCancel IsNot Nothing Then
+            RemoveHandler btnCancel.Click, AddressOf BtnCancel_Click
+            AddHandler btnCancel.Click, AddressOf BtnCancel_Click
+        End If
+
+        If btnClear IsNot Nothing Then
+            RemoveHandler btnClear.Click, AddressOf BtnClear_Click
+            AddHandler btnClear.Click, AddressOf BtnClear_Click
+        End If
+
+        If txtUsername IsNot Nothing Then
+            RemoveHandler txtUsername.TextChanged, AddressOf TxtUsername_TextChanged
+            AddHandler txtUsername.TextChanged, AddressOf TxtUsername_TextChanged
+        End If
+
+        If txtEmail IsNot Nothing Then
+            RemoveHandler txtEmail.Leave, AddressOf TxtEmail_Leave
+            AddHandler txtEmail.Leave, AddressOf TxtEmail_Leave
+        End If
+
+        If txtPassword IsNot Nothing Then
+            RemoveHandler txtPassword.TextChanged, AddressOf TxtPassword_TextChanged
+            AddHandler txtPassword.TextChanged, AddressOf TxtPassword_TextChanged
+        End If
+
+        If txtConfirmPassword IsNot Nothing Then
+            RemoveHandler txtConfirmPassword.TextChanged, AddressOf TxtConfirmPassword_TextChanged
+            AddHandler txtConfirmPassword.TextChanged, AddressOf TxtConfirmPassword_TextChanged
+        End If
     End Sub
 
     Private Sub BtnSignUp_Click(sender As Object, e As EventArgs)
         If ValidateInputs() Then
-            ' Create user account logic here
-            Dim message As String = "Account created successfully!" & vbCrLf & vbCrLf &
-                                   "Welcome to LakbayPH, " & txtFirstName.Text & "!" & vbCrLf &
-                                   "Username: " & txtUsername.Text & vbCrLf &
-                                   "Email: " & txtEmail.Text
+            Try
+                If CheckUserExists(txtUsername.Text, txtEmail.Text) Then
+                    MessageBox.Show("Username or email already exists. Please choose different values.",
+                                  "Registration Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
 
-            MessageBox.Show(message, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Me.Close()
+                If CreateUserAccount() Then
+                    Dim message As String = "Account created successfully!" & vbCrLf & vbCrLf &
+                                           "Welcome to LakbayPH, " & txtFirstName.Text & "!" & vbCrLf &
+                                           "Username: " & txtUsername.Text & vbCrLf &
+                                           "Email: " & txtEmail.Text
+
+                    MessageBox.Show(message, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Me.Close()
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error creating account: " & ex.Message, "Database Error",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End If
     End Sub
+
+
+    Private Function CreateUserAccount() As Boolean
+
+        Try
+            If CheckUserExists(txtUsername.Text, txtEmail.Text) Then
+                MessageBox.Show("Username or email already exists. Please choose different credentials.",
+                      "User Exists", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return False
+            End If
+
+            Dim hashedPassword As String = HashPassword(txtPassword.Text)
+            Dim query As String = "INSERT INTO Users (FirstName, LastName, Email, Username, Gender, Password, DateCreated) VALUES (@FirstName, @LastName, @Email, @Username, @Gender, @Password, @DateCreated)"
+
+            dbcomm.Parameters.AddWithValue("@FirstName", If(String.IsNullOrWhiteSpace(txtFirstName.Text), DBNull.Value, txtFirstName.Text.Trim()))
+            dbcomm.Parameters.AddWithValue("@LastName", If(String.IsNullOrWhiteSpace(txtLastName.Text), DBNull.Value, txtLastName.Text.Trim()))
+            dbcomm.Parameters.AddWithValue("@Email", txtEmail.Text.Trim().ToLower())
+            dbcomm.Parameters.AddWithValue("@Username", txtUsername.Text.Trim().ToLower())
+            dbcomm.Parameters.AddWithValue("@Gender", If(cmbGender.SelectedItem IsNot Nothing, cmbGender.SelectedItem.ToString(), DBNull.Value))
+            dbcomm.Parameters.AddWithValue("@Password", hashedPassword)
+            dbcomm.Parameters.AddWithValue("@DateCreated", DateTime.Now)
+
+            Dim rowsAffected As Integer = dbcomm.ExecuteNonQuery()
+
+            If rowsAffected > 0 Then
+                MessageBox.Show("User account created successfully!", "Success",
+                      MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Return True
+            Else
+                MessageBox.Show("Failed to create user account. No rows affected.", "Error",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Return False
+            End If
+
+        Catch ex As MySqlException
+            Select Case ex.Number
+                Case 1062
+                    MessageBox.Show("Username or email already exists. Please choose different credentials.",
+                          "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Case 2003
+                    MessageBox.Show("Cannot connect to database server. Please check your connection.",
+                          "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Case Else
+                    MessageBox.Show($"Database error: {ex.Message}", "Database Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Select
+            Return False
+
+        Catch ex As Exception
+            MessageBox.Show($"Unexpected error: {ex.Message}", "Error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+        Finally
+            If dbcomm IsNot Nothing Then
+            End If
+        End Try
+    End Function
+
+    Private Function CheckUserExists(username As String, email As String) As Boolean
+        Try
+            Dim query As String = "SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Email"
+            dbcomm.Parameters.AddWithValue("@Username", username.Trim().ToLower())
+            dbcomm.Parameters.AddWithValue("@Email", email.Trim().ToLower())
+            Dim count As Integer = Convert.ToInt32(dbcomm.ExecuteScalar())
+            Return count > 0
+        Catch ex As Exception
+            MessageBox.Show("Error checking user existence: " & ex.Message, "Database Error",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return True
+        End Try
+    End Function
+
+
+    Private Function HashPassword(password As String) As String
+        Try
+            ' Input validation
+            If String.IsNullOrEmpty(password) Then
+                Throw New ArgumentException("Password cannot be null or empty")
+            End If
+
+            Using sha256Hash As SHA256 = SHA256.Create()
+                ' ComputeHash - returns byte array
+                Dim bytes As Byte() = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password))
+
+                ' Convert byte array to a string using StringBuilder for better performance
+                Dim builder As New StringBuilder(bytes.Length * 2)
+                For Each b As Byte In bytes
+                    builder.Append(b.ToString("x2"))
+                Next
+
+                Return builder.ToString()
+            End Using
+
+        Catch ex As Exception
+            ' Log the error for debugging purposes
+            MessageBox.Show($"Error hashing password: {ex.Message}", "Hash Error",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            Throw New InvalidOperationException("Password hashing failed", ex)
+        End Try
+    End Function
+
+    ' Additional helper function for input validation
+    Private Function ValidateUserInput() As Boolean
+        Try
+            ' Check required fields
+            If String.IsNullOrWhiteSpace(txtUsername.Text) Then
+                MessageBox.Show("Username is required.", "Validation Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtUsername.Focus()
+                Return False
+            End If
+
+            If String.IsNullOrWhiteSpace(txtEmail.Text) Then
+                MessageBox.Show("Email is required.", "Validation Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtEmail.Focus()
+                Return False
+            End If
+
+            If String.IsNullOrWhiteSpace(txtPassword.Text) Then
+                MessageBox.Show("Password is required.", "Validation Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtPassword.Focus()
+                Return False
+            End If
+
+            ' email validation
+            If Not txtEmail.Text.Contains("@") OrElse Not txtEmail.Text.Contains(".") Then
+                MessageBox.Show("Please enter a valid email address.", "Validation Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtEmail.Focus()
+                Return False
+            End If
+
+            ' Password strength check
+            If txtPassword.Text.Length < 6 Then
+                MessageBox.Show("Password must be at least 6 characters long.", "Validation Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                txtPassword.Focus()
+                Return False
+            End If
+
+            Return True
+
+        Catch ex As Exception
+            MessageBox.Show($"Validation error: {ex.Message}", "Error",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+        End Try
+    End Function
 
     Private Sub BtnCancel_Click(sender As Object, e As EventArgs)
         Dim result As DialogResult = MessageBox.Show("Are you sure you want to cancel? All entered data will be lost.",
@@ -316,7 +502,7 @@ Public Class SignUpForm
     End Sub
 
     Private Sub TxtEmail_Leave(sender As Object, e As EventArgs)
-        ' Basic email validation
+        ' email validation
         If txtEmail IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(txtEmail.Text) Then
             If Not IsValidEmail(txtEmail.Text) Then
                 txtEmail.BackColor = Color.LightPink
@@ -327,7 +513,7 @@ Public Class SignUpForm
     End Sub
 
     Private Sub TxtPassword_TextChanged(sender As Object, e As EventArgs)
-        ' Password strength indicator (basic)
+        ' Password strength indicator
         If txtPassword IsNot Nothing Then
             If txtPassword.Text.Length >= 8 Then
                 txtPassword.BackColor = Color.LightGreen
